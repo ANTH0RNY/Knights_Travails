@@ -110,4 +110,4 @@ const knightsMoves = ([x, y], [a, b]) => {
 };
 
 createGraph();
-knightsMoves([3, 3], [4, 3]);
+knightsMoves([0, 0], [7, 7]);
