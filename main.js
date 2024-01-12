@@ -64,29 +64,50 @@ const filterList = (original, removed) => {
   return output;
 };
 
-// const destination = 0;
-// const gamePlay = (flatenMove, history) => {
-// if (flatenMove < 0 || flatenMove > 63) {
-// throw new Error(`flaten move ${flatenMove} is invalid`);
-// }
-// const path = [...history, flatenMove];
-// nodes[flatenMove].paths.push(path);
-
-// if (flatenMove === destination) return;
-
-// const moves = filterList(flattenValidMoves(flatenMove), path);
-// moves.forEach((val) => {
-// gamePlay(val, path);
-// });
-// };
-
-// gamePlay(27, []);
-
 const createGraph = () => {
   for (let i of nodes) {
     i.paths = flattenValidMoves(i.value);
   }
 };
 
+const knightsMoves = ([x, y], [a, b]) => {
+  const flatValue = flatten([x, y]);
+  const destination = flatten([a, b]);
+
+  const queue = [flatValue];
+  const visited = [];
+  const visitedObj = [];
+  while (queue.length > 0) {
+    const node = queue.shift();
+    visited.push(node);
+
+    const paths = filterList(filterList(nodes[node].paths, visited), queue);
+    if (paths.length > 0 || node === destination) {
+      visitedObj.push({ caller: node, called: paths });
+    }
+    if (node === destination) break;
+    queue.push(...paths);
+  }
+
+  const moves = [visitedObj[visitedObj.length - 1].caller];
+  function traverse(caller) {
+    for (let i of visitedObj) {
+      for (let j of i.called) {
+        if (j === caller) {
+          moves.push(i.caller);
+          traverse(i.caller);
+          return i.caller;
+        }
+      }
+    }
+  }
+
+  traverse(visitedObj[visitedObj.length - 1].caller);
+  const output = moves.reverse().map((val) => deFlatten(val));
+  console.log(`You made it in ${output.length - 1} moves! Here's your path`);
+  console.log(output);
+  return output;
+};
+
 createGraph();
-console.log(nodes);
+knightsMoves([3, 3], [4, 3]);
